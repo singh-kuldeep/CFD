@@ -1,1 +1,92 @@
 
+// Assignment 2 (CFD)
+// Kuldeep Singh (120010026)
+
+#include "iostream"
+#include "math.h"
+using namespace std ;
+ int main() 
+ {
+ 	float lenght = 2.0 ;
+ 	float deltaX = 0.5 ;
+ 	int no_of_gridpoints = floor(lenght/deltaX) + 1 ;
+
+ 	float totaltime = 1.0 ;  // time in hr
+ 	float deltaT = 0.09 ;
+ 	int total_timesteps = floor(totaltime/deltaT) ;
+
+ 	float thermaldiffusivity = 1.0 ; // (m^2)/hr
+
+ 	float temperature[no_of_gridpoints] ; // at previous timestep
+ 	float newtemperature[no_of_gridpoints]; // at new or next timestep
+ 	float middle_temperature[total_timesteps] ; //temperature at L/2 and at diffrent timesteps 
+
+ 	// float f = 0.0 ; // Expilicit
+ 	// float f = 0.5 ; // crank-nicolsion
+ 	float f = 1.0 ; // Implicit 
+
+
+	// initial condition 
+ 	for (int i = 1; i < no_of_gridpoints-1; ++i)
+ 	{
+ 		temperature[i] = (25+274) ;
+ 		// initilizing the new temperature by same value as intitial temperature
+ 		newtemperature[i] = 25+274 ; 
+ 	}
+ 	temperature[0] = 400+274 ;
+ 	temperature[no_of_gridpoints-1] = 400+274 ;
+
+ 	newtemperature[0] = 400+274 ;
+ 	newtemperature[no_of_gridpoints-1] = 400+274 ;
+ 	
+
+	// assigning the value to a_W, a_P and a_E 
+ 	float a_W[no_of_gridpoints];
+ 	float a_P[no_of_gridpoints];
+ 	float a_E[no_of_gridpoints];
+
+	for (int i = 0; i < no_of_gridpoints; ++i)
+	{
+		a_W[i] = 1.0 / deltaX ;
+		a_P[i] = 1.0 / deltaX ;
+		a_E[i] = 1.0 / deltaX ;	
+	}
+
+// time progression
+for (int t = 0; t < total_timesteps; ++t) 
+{
+	// cout << "timestep     " << t+1 << endl ;
+
+	for (int iteration = 0; iteration < 5; ++iteration) // iteration at given point of time
+	{
+		for (int i = 1; i < no_of_gridpoints-1; ++i) 
+		{
+			newtemperature[i] = ( temperature[i+1]*(1-f)*a_E[i] + newtemperature[i+1]*f*a_E[i] + 
+				temperature[i-1]*(1-f)*a_W[i]+ newtemperature[i-1]*f*a_W[i] + 
+				temperature[i]*(deltaX/(thermaldiffusivity*deltaT) -(1-f)*a_E[i] -(1-f)*a_W[i]) )/
+			( deltaX/(thermaldiffusivity*deltaT) + f*a_E[i] + f*a_W[i] );
+			
+		}
+		for (int j = 0; j < no_of_gridpoints-1; ++j)
+		{
+			temperature[j] = newtemperature[j] ; // updating
+		}
+	}
+	// storing the value of the temperature at mid-point
+	middle_temperature[t] = temperature[(no_of_gridpoints/2)] ; 
+
+}
+// cout << "deltaX" << sqrt(0.2) <<endl ;
+cout << "middle_temperature with time " << endl ;
+for (int i = 0; i < total_timesteps; ++i)
+{
+	cout << "time = [" << (i+1)*deltaT << "]      "<< middle_temperature[i] << endl ;
+	// cout << middle_temperature[i] << endl ;
+}
+
+	// // printing the temp
+	// for (int i = 0; i < no_of_gridpoints; ++i)
+	// 	{
+	// 		cout << "temperature [" << i << "]    " << temperature[i] << endl  ;
+	// 	}
+}
